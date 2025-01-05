@@ -26,14 +26,9 @@ namespace ApiMovies.Repositorys
 
         public Task<Categoria> GetCategoria(int id)
         {
-            var existeCategoria = ExisteCategoria(id);
-            if (!existeCategoria)
-            {
-                return null;
-            }
-            
-            var categoria = _context.Categoria.Find(id);
+            var categoria = _context.Categoria.FirstOrDefault(p => p.Id == id);
             return Task.FromResult(categoria);
+
         }
 
         public Task<IEnumerable<Categoria>> GetCategorias()

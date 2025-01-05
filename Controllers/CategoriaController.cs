@@ -1,5 +1,6 @@
 ﻿using ApiMovies.Models;
 using ApiMovies.Models.Dtos;
+using ApiMovies.Models.Response;
 using ApiMovies.Repositorys.IRepository;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
@@ -29,7 +30,13 @@ namespace ApiMovies.Controllers
             {
                 categoriasDto.Add(_mapper.Map<CategoriaDto>(categoria));
             }
-            return Ok(categoriasDto);
+
+            var response = new DataResponse<List<CategoriaDto>>();
+            response.Success = true;
+            response.Message = "Categorias obtenidas con exito";
+            response.Data = categoriasDto;
+
+            return Ok(response);
         }
 
         // Get api/v1/categorias/{id}
@@ -37,12 +44,23 @@ namespace ApiMovies.Controllers
         public async Task<IActionResult> GetCategoria(int id)
         {
             var categoria = await _categoriaRepository.GetCategoria(id);
+            
             if (categoria == null)
             {
-                return NotFound();
+                var responseError = new DataResponse<string>
+                {
+                    Success = false,
+                    Message = "Categoria no encontrada",
+                };
+                return NotFound(responseError);
             }
             var categoriaDto = _mapper.Map<CategoriaDto>(categoria);
-            return Ok(categoriaDto);
+            var response = new DataResponse<CategoriaDto>();
+            response.Success = true;
+            response.Message = "Categoria obtenida con exito";
+            response.Data = categoriaDto;
+
+            return Ok(response);
         }
 
         // Post api/v1/categorias
@@ -51,12 +69,24 @@ namespace ApiMovies.Controllers
         {
             if (crearCategoriaDto == null)
             {
-                return BadRequest(ModelState);
+                var responseError = new DataResponse<string>
+                {
+                    Success = false,
+                    Message = "Categoria vacia",
+                };
+
+                return BadRequest(responseError);
             }
             
             var categoria = _mapper.Map<Categoria>(crearCategoriaDto);
             var categoriaCreada = await _categoriaRepository.CreateCategoria(categoria);
-            return CreatedAtRoute("GetCategoria", new { id = categoriaCreada.Id }, categoriaCreada);
+            var response = new DataResponse<CategoriaDto>
+            {
+                Success = true,
+                Message = "Categoria creada con exito",
+                Data = _mapper.Map<CategoriaDto>(categoriaCreada)
+            };
+            return Ok(response);
         }
 
         // Put api/v1/categorias/{id}
@@ -65,11 +95,22 @@ namespace ApiMovies.Controllers
         {
             if (categoriaDto == null || id != categoriaDto.Id)
             {
-                return BadRequest(ModelState);
+                var responseError = new DataResponse<string>
+                {
+                    Success = false,
+                    Message = "Categoria vacia",
+                };
+                return BadRequest(responseError);
             }
             var categoria = _mapper.Map<Categoria>(categoriaDto);
             var categoriaActualizada = await _categoriaRepository.UpdateCategoria(categoria);
-            return Ok(categoriaActualizada);
+            var response = new DataResponse<CategoriaDto>
+            {
+                Success = true,
+                Message = "Categoria actualizada con exito",
+                Data = _mapper.Map<CategoriaDto>(categoriaActualizada)
+            };
+            return Ok(response);
         }
 
         // Delete api/v1/categorias/{id}
@@ -78,11 +119,17 @@ namespace ApiMovies.Controllers
         {
             if (!_categoriaRepository.ExisteCategoria(id))
             {
-                return NotFound();
+                return NotFound(new DataResponse<String>
+                {
+                    Success = false,
+                    Message = "Categoria no encontrada",
+                    
+                });
             }
             var categoriaEliminada = _categoriaRepository.DeleteCategoria(id);
-            return Ok();
+            return Ok(new DataResponse<string> { Success= true, Message = "Categoria eliminada con exito"});
         }
+
 
     }
 }

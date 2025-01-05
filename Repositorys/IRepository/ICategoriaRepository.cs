@@ -10,5 +10,6 @@ namespace ApiMovies.Repositorys.IRepository
         Task<Categoria> CreateCategoria(Categoria categoria);
         Task<Categoria> UpdateCategoria(Categoria categoria);
         bool DeleteCategoria(int id);
+        
     }
 }
