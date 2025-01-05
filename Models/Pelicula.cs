@@ -9,7 +9,7 @@
         public string RutaImagen { get; set; }
         public enum TipoClasificacion { Siete, Trece, Dieciseis, Dieciocho }
         public TipoClasificacion Clasificacion { get; set; }
-        public DateTime FechaCreacion { get; set; }
+        public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
         public int categoriaId { get; set; }
         public Categoria Categoria { get; set; }
 
